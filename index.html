@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="pt-BR">
 <head>
@@ -5,13 +6,15 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#fff1f8">
 <title>Miaur-Chan Studio</title>
+
 <style>
 :root{--pink:#f05aa8;--deep:#b92e78;--bg:#fff7fb;--ink:#56364b}
 *{box-sizing:border-box}
 body{margin:0;background:linear-gradient(145deg,#fff7fb,#f7efff);font:15px system-ui;color:var(--ink);min-height:100vh}
 .wrap{max-width:760px;margin:auto;padding:22px 14px 40px}
 .brand{text-align:center;margin:14px 0 22px}
-.brand .cat{font-size:38px}.brand h1{margin:4px;color:var(--deep);font-size:28px}
+.brand .cat{font-size:38px}
+.brand h1{margin:4px;color:var(--deep);font-size:28px}
 .brand p{margin:0;color:#98758b}
 .panel{background:#fff;border:1px solid #f5d6e7;border-radius:22px;padding:18px;box-shadow:0 8px 30px #d98ab522;margin:12px 0}
 .hidden{display:none!important}
@@ -29,34 +32,68 @@ button:disabled{opacity:.5;cursor:wait}
 .small{font-size:12px;color:#9a7a8c}
 </style>
 </head>
+
 <body>
 <main class="wrap">
-<header class="brand"><div class="cat">🐾</div><h1>Miaur-Chan Studio</h1><p>Um cantinho seguro para testar nossa assistente 💗</p></header>
+
+<header class="brand">
+<div class="cat">🐾</div>
+<h1>Miaur-Chan Studio</h1>
+<p>Um cantinho seguro para testar nossa assistente 💗</p>
+</header>
 
 <section id="auth" class="panel">
 <h2>Entrar no Studio</h2>
 <p class="small">Entre com uma conta do projeto Appwrite Miaur. Você também pode criar uma conta de teste.</p>
-<label for="email">E-mail</label><input id="email" type="email" autocomplete="email" placeholder="voce@email.com">
-<label for="password">Senha</label><input id="password" type="password" autocomplete="current-password" placeholder="Sua senha">
-<div class="row"><button id="login" type="button">Entrar</button><button id="signup" class="secondary" type="button">Criar conta</button></div>
+
+<label for="email">E-mail</label>
+<input id="email" type="email" autocomplete="email" placeholder="voce@email.com">
+
+<label for="password">Senha</label>
+<input id="password" type="password" autocomplete="current-password" placeholder="Sua senha">
+
+<div class="row">
+<button id="login" type="button">Entrar</button>
+<button id="signup" class="secondary" type="button">Criar conta</button>
+</div>
+
 <p id="authStatus" class="status" role="status"></p>
 </section>
 
 <section id="app" class="hidden">
+
 <div class="panel">
 <div class="row" style="justify-content:space-between">
 <strong>🐱 Miaur-Chan</strong>
-<div><button id="newChat" class="secondary" type="button">Nova conversa</button><button id="logout" class="secondary" type="button">Sair</button></div>
+
+<div>
+<button id="newChat" class="secondary" type="button">Nova conversa</button>
+<button id="logout" class="secondary" type="button">Sair</button>
 </div>
+</div>
+
 <p id="appStatus" class="status" role="status"></p>
-<div id="chat" class="chat" aria-live="polite"><div class="bubble assistant">Oiii! 💗 Eu sou a Miaur-Chan. Pode conversar comigo!</div></div>
+
+<div id="chat" class="chat" aria-live="polite">
+<div class="bubble assistant">Oiii! 💗 Eu sou a Miaur-Chan. Pode conversar comigo!</div>
+</div>
+
 <form id="sendForm">
 <label for="message">Sua mensagem</label>
 <textarea id="message" rows="3" maxlength="4000" placeholder="Escreva aqui..." required></textarea>
-<div class="row"><button id="send" type="submit">Enviar mensagem ✨</button><span class="small">Até 4.000 caracteres</span></div>
+
+<div class="row">
+<button id="send" type="submit">Enviar mensagem ✨</button>
+<span class="small">Até 4.000 caracteres</span>
+</div>
 </form>
 </div>
-<div class="panel"><strong>Conversas recentes</strong><div id="conversations" class="small" style="margin-top:10px">Carregando...</div></div>
+
+<div class="panel">
+<strong>Conversas recentes</strong>
+<div id="conversations" class="small" style="margin-top:10px">Carregando...</div>
+</div>
+
 </section>
 </main>
 
@@ -67,13 +104,20 @@ const ENDPOINT = 'https://fra.cloud.appwrite.io/v1';
 const PROJECT_ID = '6ad9fc7e003b7df8827b';
 const FUNCTION_ID = 'miaur-chan-api';
 
-const client = new Client().setEndpoint(ENDPOINT).setProject(PROJECT_ID);
+const client = new Client()
+  .setEndpoint(ENDPOINT)
+  .setProject(PROJECT_ID);
+
 const account = new Account(client);
 const functions = new Functions(client);
+
 const $ = (id) => document.getElementById(id);
+
 let conversationId = null;
 
-function setStatus(id, message) { $(id).textContent = message || ''; }
+function setStatus(id, message) {
+  $(id).textContent = message || '';
+}
 
 function addBubble(role, content) {
   const el = document.createElement('div');
@@ -98,17 +142,25 @@ async function authAction(mode) {
   setStatus('authStatus', 'Aguarde...');
   $('login').disabled = true;
   $('signup').disabled = true;
+
   try {
     const email = $('email').value.trim();
     const password = $('password').value;
-    if (!email || !password) throw new Error('Informe seu e-mail e sua senha.');
+
+    if (!email || !password) {
+      throw new Error('Informe seu e-mail e sua senha.');
+    }
+
     if (mode === 'signup') {
       await account.create(ID.unique(), email, password);
     }
+
     await account.createEmailPasswordSession(email, password);
     await showApp();
+
   } catch (err) {
     setStatus('authStatus', err.message || 'Não foi possível entrar.');
+
   } finally {
     $('login').disabled = false;
     $('signup').disabled = false;
@@ -119,51 +171,85 @@ $('login').addEventListener('click', () => authAction('login'));
 $('signup').addEventListener('click', () => authAction('signup'));
 
 $('logout').addEventListener('click', async () => {
-  try { await account.deleteSession('current'); } catch {}
+  try {
+    await account.deleteSession('current');
+  } catch {}
+
   conversationId = null;
   $('app').classList.add('hidden');
   $('auth').classList.remove('hidden');
   setStatus('authStatus', 'Você saiu da sua conta.');
 });
 
+/* CORREÇÃO: JWT enviado no corpo, sem cabeçalho x-appwrite */
+
 async function callApi(payload) {
   const jwt = await account.createJWT();
+
   const execution = await functions.createExecution(
     FUNCTION_ID,
-    JSON.stringify(payload),
+    JSON.stringify({
+      ...payload,
+      userJwt: jwt.jwt
+    }),
     false,
     '/',
-    'POST',
-    { 'x-appwrite-user-jwt': jwt.jwt }
+    'POST'
   );
+
   let result;
-  try { result = JSON.parse(execution.responseBody || '{}'); }
-  catch { throw new Error('A função retornou uma resposta que não é JSON.'); }
-  if (execution.responseStatusCode < 200 || execution.responseStatusCode >= 300) {
-    throw new Error(result.error || result.message || 'Falha ao executar a Miaur-Chan.');
+
+  try {
+    result = JSON.parse(execution.responseBody || '{}');
+  } catch {
+    throw new Error('A função retornou uma resposta que não é JSON.');
   }
-  if (result.error) throw new Error(result.error);
+
+  if (
+    execution.responseStatusCode < 200 ||
+    execution.responseStatusCode >= 300
+  ) {
+    throw new Error(
+      result.error ||
+      result.message ||
+      'Falha ao executar a Miaur-Chan.'
+    );
+  }
+
+  if (result.error) {
+    throw new Error(result.error);
+  }
+
   return result;
 }
 
 async function loadConversations() {
   $('conversations').textContent = 'Carregando...';
+
   try {
     const data = await callApi({ action: 'list' });
+
     $('conversations').replaceChildren();
+
     const conversations = data.conversations || [];
+
     if (!conversations.length) {
       $('conversations').textContent = 'Ainda não há conversas.';
       return;
     }
+
     for (const item of conversations) {
       const button = document.createElement('button');
+
       button.type = 'button';
       button.className = 'secondary';
       button.textContent = item.title || 'Conversa';
+
       button.addEventListener('click', () => loadHistory(item.id));
+
       $('conversations').append(button);
     }
+
   } catch (err) {
     $('conversations').textContent = err.message;
   }
@@ -171,14 +257,25 @@ async function loadConversations() {
 
 async function loadHistory(id) {
   setStatus('appStatus', 'Abrindo conversa...');
+
   try {
-    const data = await callApi({ action: 'history', conversationId: id });
+    const data = await callApi({
+      action: 'history',
+      conversationId: id
+    });
+
     conversationId = id;
     clearChat();
+
     for (const item of (data.messages || [])) {
-      addBubble(item.role === 'user' ? 'user' : 'assistant', item.content);
+      addBubble(
+        item.role === 'user' ? 'user' : 'assistant',
+        item.content
+      );
     }
+
     setStatus('appStatus', '');
+
   } catch (err) {
     setStatus('appStatus', err.message);
   }
@@ -193,21 +290,38 @@ $('newChat').addEventListener('click', () => {
 
 $('sendForm').addEventListener('submit', async (event) => {
   event.preventDefault();
+
   const message = $('message').value.trim();
+
   if (!message) return;
+
   addBubble('user', message);
   $('message').value = '';
   $('send').disabled = true;
+
   setStatus('appStatus', 'Miaur-Chan está pensando...');
+
   try {
-    const data = await callApi({ action: 'send', message, conversationId });
+    const data = await callApi({
+      action: 'send',
+      message,
+      conversationId
+    });
+
     conversationId = data.conversationId || conversationId;
-    if (data.reply) addBubble('assistant', data.reply);
+
+    if (data.reply) {
+      addBubble('assistant', data.reply);
+    }
+
     setStatus('appStatus', 'Resposta recebida e histórico salvo 💗');
+
     await loadConversations();
+
   } catch (err) {
     addBubble('assistant', 'Ops! ' + err.message);
     setStatus('appStatus', 'Não foi possível concluir o envio.');
+
   } finally {
     $('send').disabled = false;
     $('message').focus();
@@ -218,7 +332,8 @@ try {
   await account.get();
   await showApp();
 } catch {
-  // Usuário ainda não está autenticado; mantém a tela de entrada.
+  // Usuário ainda não está autenticado.
+  // Mantém a tela de entrada.
 }
 </script>
 </body>
